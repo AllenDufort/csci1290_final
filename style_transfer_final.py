@@ -70,12 +70,14 @@ def tensor_to_image(tensor):
 """Download images and choose a style image and a content image:"""
 
 # content_path = tf.keras.utils.get_file('arches_park.jpg', 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Delicate_arch_sunset.jpg')
-content_path = tf.keras.utils.get_file('desert_night.jpg', 'https://i.ytimg.com/vi/eD-uW422fB0/maxresdefault.jpg')
-content_path = ''
+# content_path = tf.keras.utils.get_file('desert_night.jpg', 'https://i.ytimg.com/vi/eD-uW422fB0/maxresdefault.jpg')
+content_path = '/content/Insta360_air_photo.jpg'
+
 # style_path = tf.keras.utils.get_file('mona-lisa.png', 'https://cdn.britannica.com/24/189624-050-F3C5BAA9/Mona-Lisa-oil-wood-panel-Leonardo-da.jpg')
 # style_path = tf.keras.utils.get_file('signac.jpg', 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Signac_-_Portrait_de_F%C3%A9lix_F%C3%A9n%C3%A9on.jpg')
 # style_path = tf.keras.utils.get_file('scream.jpg', 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg')
-style_path = tf.keras.utils.get_file('gogh.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.JPG/540px-Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.jpg')
+# style_path = tf.keras.utils.get_file('gogh.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.JPG/540px-Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.jpg')
+style_path = tf.keras.utils.get_file('pearl.jpg', 'https://www.singulart.com/blog/wp-content/uploads/2023/10/Famous-Portrait-Paintings-848x530-1.jpg')
 
 """## Visualize the input
 
@@ -311,19 +313,12 @@ def train_step(image):
   opt.apply_gradients([(grad, image)])
   image.assign(clip_0_1(image))
 
-"""Now run a few steps to test:"""
-
-train_step(image)
-train_step(image)
-train_step(image)
-tensor_to_image(image)
-
 """Since it's working, perform a longer optimization:"""
 
 import time
 start = time.time()
 
-epochs = 10
+epochs = 7
 steps_per_epoch = 100
 
 step = 0
@@ -350,33 +345,14 @@ def high_pass_x_y(image):
 
   return x_var, y_var
 
-x_deltas, y_deltas = high_pass_x_y(content_image)
+old_image = image
 
-plt.figure(figsize=(14, 10))
-plt.subplot(2, 2, 1)
-imshow(clip_0_1(2*y_deltas+0.5), "Horizontal Deltas: Original")
-
-plt.subplot(2, 2, 2)
-imshow(clip_0_1(2*x_deltas+0.5), "Vertical Deltas: Original")
-
-x_deltas, y_deltas = high_pass_x_y(image)
-
-plt.subplot(2, 2, 3)
-imshow(clip_0_1(2*y_deltas+0.5), "Horizontal Deltas: Styled")
-
-plt.subplot(2, 2, 4)
-imshow(clip_0_1(2*x_deltas+0.5), "Vertical Deltas: Styled")
-
-"""This shows how the high frequency components have increased.
-
-Also, this high frequency component is basically an edge-detector.
-
-## Re-run the optimization
+"""## Re-run the optimization
 
 Choose a weight for the `total_variation_loss`:
 """
 
-total_variation_weight=30
+total_variation_weight=100
 
 """Now include it in the `train_step` function:"""
 
@@ -401,7 +377,7 @@ image = tf.Variable(content_image)
 import time
 start = time.time()
 
-epochs = 10
+epochs = 7
 steps_per_epoch = 100
 
 step = 0
@@ -417,7 +393,52 @@ for n in range(epochs):
 end = time.time()
 print("Total time: {:.1f}".format(end-start))
 
-"""Finally, save the result:"""
+fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(12, 12), tight_layout=True)
+
+img = content_image
+x_deltas, y_deltas = high_pass_x_y(img)
+axs[0, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+axs[0, 0].set_title("Horizontal Deltas: Original")
+axs[0, 0].axis("off")
+axs[0, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+axs[0, 1].set_title("Vertical Deltas: Original")
+axs[0, 1].axis("off")
+axs[0, 2].imshow(img[0])
+axs[0, 2].set_title("Original image")
+axs[0, 2].axis("off")
+
+img = old_image
+x_deltas, y_deltas = high_pass_x_y(img)
+axs[1, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+axs[1, 0].set_title("Horizontal Deltas: Styled")
+axs[1, 0].axis("off")
+axs[1, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+axs[1, 1].set_title("Vertical Deltas: Styled")
+axs[1, 1].axis("off")
+axs[1, 2].imshow(img[0])
+axs[1, 2].set_title("Styled image")
+axs[1, 2].axis("off")
+
+img = image
+x_deltas, y_deltas = high_pass_x_y(img)
+axs[2, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+axs[2, 0].set_title("Horizontal Deltas: Optimized")
+axs[2, 0].axis("off")
+axs[2, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+axs[2, 1].set_title("Vertical Deltas: Optimized")
+axs[2, 1].axis("off")
+axs[2, 2].imshow(img[0])
+axs[2, 2].set_title("Optimized image")
+axs[2, 2].axis("off")
+
+plt.show()
+
+"""This shows how the high frequency components increased with the stylization, but is lowered with the optimization of the loss using total variation.
+
+NOTE: This high frequency component is basically an edge-detector.
+
+Finally, save the result:
+"""
 
 file_name = 'stylized-image.png'
 tensor_to_image(image).save(file_name)
