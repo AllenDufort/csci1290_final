@@ -71,13 +71,13 @@ def tensor_to_image(tensor):
 
 # content_path = tf.keras.utils.get_file('arches_park.jpg', 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Delicate_arch_sunset.jpg')
 # content_path = tf.keras.utils.get_file('desert_night.jpg', 'https://i.ytimg.com/vi/eD-uW422fB0/maxresdefault.jpg')
-content_path = '/content/Insta360_air_photo.jpg'
+content_path = '/content/insta360_3.jpg'
 
 # style_path = tf.keras.utils.get_file('mona-lisa.png', 'https://cdn.britannica.com/24/189624-050-F3C5BAA9/Mona-Lisa-oil-wood-panel-Leonardo-da.jpg')
 # style_path = tf.keras.utils.get_file('signac.jpg', 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Signac_-_Portrait_de_F%C3%A9lix_F%C3%A9n%C3%A9on.jpg')
-# style_path = tf.keras.utils.get_file('scream.jpg', 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg')
+style_path = tf.keras.utils.get_file('scream.jpg', 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg')
 # style_path = tf.keras.utils.get_file('gogh.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.JPG/540px-Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.jpg')
-style_path = tf.keras.utils.get_file('pearl.jpg', 'https://www.singulart.com/blog/wp-content/uploads/2023/10/Famous-Portrait-Paintings-848x530-1.jpg')
+# style_path = tf.keras.utils.get_file('pearl.jpg', 'https://www.singulart.com/blog/wp-content/uploads/2023/10/Famous-Portrait-Paintings-848x530-1.jpg')
 
 """## Visualize the input
 
@@ -313,26 +313,30 @@ def train_step(image):
   opt.apply_gradients([(grad, image)])
   image.assign(clip_0_1(image))
 
-"""Since it's working, perform a longer optimization:"""
+"""Perform the optimization:"""
 
-import time
-start = time.time()
+def generate_image(epochs, steps_per_epoch, image):
+    start = time.time()
+    step = 0
+
+    for n in range(epochs):
+        for m in range(steps_per_epoch):
+            step += 1
+            train_step(image)
+            print(".", end='', flush=True)
+
+        display.clear_output(wait=True)
+        display.display(tensor_to_image(image))
+        print("Train step: {}".format(step))
+
+    end = time.time()
+    print("Total time: {:.1f}".format(end - start))
 
 epochs = 7
 steps_per_epoch = 100
 
-step = 0
-for n in range(epochs):
-  for m in range(steps_per_epoch):
-    step += 1
-    train_step(image)
-    print(".", end='', flush=True)
-  display.clear_output(wait=True)
-  display.display(tensor_to_image(image))
-  print("Train step: {}".format(step))
-
-end = time.time()
-print("Total time: {:.1f}".format(end-start))
+generate_image(epochs, steps_per_epoch, image)
+old_image = image
 
 """## Total variation loss
 
@@ -344,8 +348,6 @@ def high_pass_x_y(image):
   y_var = image[:, 1:, :, :] - image[:, :-1, :, :]
 
   return x_var, y_var
-
-old_image = image
 
 """## Re-run the optimization
 
@@ -374,24 +376,10 @@ image = tf.Variable(content_image)
 
 """And run the optimization:"""
 
-import time
-start = time.time()
-
 epochs = 7
 steps_per_epoch = 100
 
-step = 0
-for n in range(epochs):
-  for m in range(steps_per_epoch):
-    step += 1
-    train_step(image)
-    print(".", end='', flush=True)
-  display.clear_output(wait=True)
-  display.display(tensor_to_image(image))
-  print("Train step: {}".format(step))
-
-end = time.time()
-print("Total time: {:.1f}".format(end-start))
+generate_image(epochs, steps_per_epoch, image)
 
 fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(12, 12), tight_layout=True)
 
