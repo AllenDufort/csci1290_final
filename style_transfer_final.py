@@ -58,6 +58,7 @@ import numpy as np
 import PIL.Image
 import time
 import functools
+import cv2
 
 def tensor_to_image(tensor):
   tensor = tensor*255
@@ -71,7 +72,7 @@ def tensor_to_image(tensor):
 
 # content_path = tf.keras.utils.get_file('arches_park.jpg', 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Delicate_arch_sunset.jpg')
 # content_path = tf.keras.utils.get_file('desert_night.jpg', 'https://i.ytimg.com/vi/eD-uW422fB0/maxresdefault.jpg')
-content_path = '/content/insta360_3.jpg'
+content_path = '/content/insta_003.jpg'
 
 # style_path = tf.keras.utils.get_file('mona-lisa.png', 'https://cdn.britannica.com/24/189624-050-F3C5BAA9/Mona-Lisa-oil-wood-panel-Leonardo-da.jpg')
 # style_path = tf.keras.utils.get_file('signac.jpg', 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Signac_-_Portrait_de_F%C3%A9lix_F%C3%A9n%C3%A9on.jpg')
@@ -424,9 +425,60 @@ plt.show()
 """This shows how the high frequency components increased with the stylization, but is lowered with the optimization of the loss using total variation.
 
 NOTE: This high frequency component is basically an edge-detector.
-
-Finally, save the result:
 """
+
+# Function to create the mask for the image
+def create_mask(original_image_path, threshold=0.5):
+    img = load_img(original_image_path)
+
+    # Convert the image to a NumPy array
+    image_array = tf.keras.preprocessing.image.img_to_array(img[0])
+
+    # Convert the image to grayscale
+    gray_image = tf.image.rgb_to_grayscale(image_array)
+
+    # Create a binary mask based on intensity threshold
+    binary_mask = tf.where(gray_image > threshold, 1.0, 0.0)
+
+    return binary_mask
+
+# Function to apply the mask to the image
+def apply_mask(original_img, content_img, mask):
+    return original_img[0] * mask + content_img[0] * (1 - mask)
+
+mask = create_mask(content_path, 0.6)
+
+# Display the original image and the created mask
+
+new_image = apply_mask(image, content_image, mask)
+
+# Display the original image and the created mask
+plt.figure(figsize=(12, 6))
+
+plt.subplot(2, 2, 1)
+plt.imshow(content_image[0])
+plt.title('Original Image')
+plt.axis('off')
+
+plt.subplot(2, 2, 2)
+plt.imshow(mask, cmap='gray')
+plt.title('Generated Mask')
+plt.axis('off')
+
+plt.subplot(2, 2, 3)
+plt.imshow(image[0])
+plt.title('Generated Image')
+plt.axis('off')
+
+plt.subplot(2, 2, 4)
+plt.imshow(new_image, cmap='gray')
+plt.title('Masked Image')
+plt.axis('off')
+
+
+plt.show()
+
+"""Finally, save the result:"""
 
 file_name = 'stylized-image.png'
 tensor_to_image(image).save(file_name)
