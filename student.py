@@ -59,7 +59,6 @@ def image_texture(source, texture, outsize, tilesize, overlapsize, n_iter, quiet
                     if np.count_nonzero(mask[y:y+tilesize, x:x + tilesize, 0]) == 0:
                         imout_mask[y:y+tilesize,x:x+tilesize] = True
                         continue
-                        
                     else:
                         # patch we want to fill
                         to_fill = imout[y:y+tilesize, x:x + tilesize]
