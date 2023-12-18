@@ -109,23 +109,27 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
     # We can use the same set of patch selection methods as before, but we also want our synthesized texture
     # to have the same intensity as the source image. What selection criteria or cost might we use?
 
+     # Calculate dimensions of the texture and the to_fill mask
     width = texture.shape[1]
     height = texture.shape[0]
 
     width_mask = to_fill_mask.shape[1]
     height_mask = to_fill_mask.shape[0]
 
+    # Calculate the maximum possible integer values for width and height
     max_width_integer = np.floor(width/tilesize)
     max_height_integer = np.floor(height/tilesize)
 
     width_range = range(int(max_width_integer))
     height_range = range(int(max_height_integer))
 
+    # Convert source to grayscale for intensity matching
     source_gray = rgb2gray(source)
 
     patch_indices = []
     errors = []
 
+    # Loop through possible patch locations
     for i in height_range:
         for j in width_range:
             patch_indices.append(tuple((i, j)))
@@ -155,7 +159,7 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
             squared3 = np.square(diff3)
             corr_error = np.sum(squared3)
 
-
+            # Combine errors with the trade-off parameter alpha
             error1 = alpha * (reg_error + previous_error)
             error2 = ( 1 - alpha) * corr_error
 
@@ -163,12 +167,13 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
 
             errors.append(error)
     
+    # Select the N patches with the lowest errors
     errors, patch_indices = zip(*sorted(zip(errors, patch_indices)))
     N = 3
-
     errors_N = errors[0:N]
     patch_indices_N = patch_indices[0:N]
 
+    # Randomly select one patch from the N patches
     select = np.random.randint(N)
     index_select = patch_indices_N[select]
 
@@ -178,12 +183,14 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
     width_range_start = width_index*tilesize
     height_range_start = height_index*tilesize
 
+    # Extract the selected patch
     patch = texture[height_range_start:height_range_start+tilesize, width_range_start:width_range_start+tilesize, :]
 
+    # Handle special cases for blending based on overlap in the mask
     if np.sum(to_fill) == 0:
         return patch
-    elif (to_fill_mask[0, width_mask-1] == 0 and to_fill_mask[height_mask-1, 0] == 1): #Just find cut to the left 
-
+    elif (to_fill_mask[0, width_mask-1] == 0 and to_fill_mask[height_mask-1, 0] == 1): 
+        # Just find cut to the left 
 
         to_fill_select = to_fill[:, 0:overlapsize, :]
         patch_select = patch[:, 0:overlapsize, :]
@@ -246,7 +253,8 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
         return np.multiply(final_mask, patch) + np.multiply(1-final_mask, to_fill)
     
 
-    elif (to_fill_mask[0, width_mask-1] == 1 and to_fill_mask[height_mask-1, 0] == 0): #Just find cut above
+    elif (to_fill_mask[0, width_mask-1] == 1 and to_fill_mask[height_mask-1, 0] == 0): 
+        # Just find cut above
 
         to_fill_select = to_fill[0:overlapsize, :, :]
         patch_select = patch[0:overlapsize, :, :]
@@ -312,7 +320,8 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
         return np.multiply(final_mask, patch) + np.multiply(1-final_mask, to_fill)
     
     elif (to_fill_mask[0, width_mask-1] == 1 and to_fill_mask[height_mask-1, 0] == 1):
-
+        # Find both left and above cuts
+        
         to_fill_select = to_fill[0:overlapsize, :, :]
         patch_select = patch[0:overlapsize, :, :]
         
