@@ -2,7 +2,11 @@
 Final Project of Fall 2023 Brown course CSCI1290: Computational Photography.
 
 ## Project Goal
-The goal of the project is ???. To learn more, read final_report.pdf, which is attach to the Github.
+The goal of the project was to transform entire 360º images into artistic stylizations based on famous painting styles. We stylized the specific regions of interests, such as the sky, while preserving other parts of the original image. In addition to the stylizations, we added a dimension of interactivity, similar to Google Street View, where the image can be rotated 360 degrees.
+
+This project is built on influential works in neural style transfer, drawing inspiration from "A Neural Algorithm of Artistic Style" by Gatys et al. \cite{Gatys}, Efros et al.'s "Image Quilting for Texture Synthesis and Transfer" \cite{Efros} and "Exploring the Structure of a Real-Time, Arbitrary Neural Artistic Stylization Network" by Ghiasi et al. \cite{Ghiasi}. Our project delves into both style and texture transfer methods. This involved implementing neural networks, including Convolutional Neural Networks (CNNs) and the TensorFlow model TF-Hub, and employing a patch-based texture transfer algorithm. 
+
+To learn more, read final_report.pdf, which is attached to the Github.
 
 ## To clone code:
 `git clone https://github.com/AllenDufort/csci1290_final.git `
