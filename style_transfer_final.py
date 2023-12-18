@@ -72,13 +72,14 @@ def tensor_to_image(tensor):
 
 # content_path = tf.keras.utils.get_file('arches_park.jpg', 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Delicate_arch_sunset.jpg')
 # content_path = tf.keras.utils.get_file('desert_night.jpg', 'https://i.ytimg.com/vi/eD-uW422fB0/maxresdefault.jpg')
-content_path = '/content/insta_003.jpg'
+content_path = '/content/insta_089.jpg'
 
 # style_path = tf.keras.utils.get_file('mona-lisa.png', 'https://cdn.britannica.com/24/189624-050-F3C5BAA9/Mona-Lisa-oil-wood-panel-Leonardo-da.jpg')
 # style_path = tf.keras.utils.get_file('signac.jpg', 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Signac_-_Portrait_de_F%C3%A9lix_F%C3%A9n%C3%A9on.jpg')
-style_path = tf.keras.utils.get_file('scream.jpg', 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg')
+# style_path = tf.keras.utils.get_file('scream.jpg', 'https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg')
 # style_path = tf.keras.utils.get_file('gogh.jpg', 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.JPG/540px-Vincent_van_Gogh_%281853-1890%29_Caf%C3%A9terras_bij_nacht_%28place_du_Forum%29_Kr%C3%B6ller-M%C3%BCller_Museum_Otterlo_23-8-2016_13-35-40.jpg')
 # style_path = tf.keras.utils.get_file('pearl.jpg', 'https://www.singulart.com/blog/wp-content/uploads/2023/10/Famous-Portrait-Paintings-848x530-1.jpg')
+style_path = '/content/style10.png'
 
 """## Visualize the input
 
@@ -86,20 +87,21 @@ Define a function to load an image and limit its maximum dimension to 512 pixels
 """
 
 def load_img(path_to_img):
-  max_dim = 512
-  img = tf.io.read_file(path_to_img)
-  img = tf.image.decode_image(img, channels=3)
-  img = tf.image.convert_image_dtype(img, tf.float32)
+    # max_dim = 512
+    max_dim = 1024
+    img = tf.io.read_file(path_to_img)
+    img = tf.image.decode_image(img, channels=3)
+    img = tf.image.convert_image_dtype(img, tf.float32)
 
-  shape = tf.cast(tf.shape(img)[:-1], tf.float32)
-  long_dim = max(shape)
-  scale = max_dim / long_dim
+    shape = tf.cast(tf.shape(img)[:-1], tf.float32)
+    long_dim = max(shape)
+    scale = max_dim / long_dim
 
-  new_shape = tf.cast(shape * scale, tf.int32)
+    new_shape = tf.cast(shape * scale, tf.int32)
 
-  img = tf.image.resize(img, new_shape)
-  img = img[tf.newaxis, :]
-  return img
+    img = tf.image.resize(img, new_shape)
+    img = img[tf.newaxis, :]
+    return img
 
 """Create a simple function to display an image:"""
 
@@ -333,11 +335,11 @@ def generate_image(epochs, steps_per_epoch, image):
     end = time.time()
     print("Total time: {:.1f}".format(end - start))
 
-epochs = 7
-steps_per_epoch = 100
+# epochs = 7
+# steps_per_epoch = 100
 
-generate_image(epochs, steps_per_epoch, image)
-old_image = image
+# generate_image(epochs, steps_per_epoch, image)
+# old_image = image
 
 """## Total variation loss
 
@@ -382,49 +384,51 @@ steps_per_epoch = 100
 
 generate_image(epochs, steps_per_epoch, image)
 
-fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(12, 12), tight_layout=True)
+# fig, axs = plt.subplots(nrows=3, ncols=3, figsize=(12, 12), tight_layout=True)
 
-img = content_image
-x_deltas, y_deltas = high_pass_x_y(img)
-axs[0, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
-axs[0, 0].set_title("Horizontal Deltas: Original")
-axs[0, 0].axis("off")
-axs[0, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
-axs[0, 1].set_title("Vertical Deltas: Original")
-axs[0, 1].axis("off")
-axs[0, 2].imshow(img[0])
-axs[0, 2].set_title("Original image")
-axs[0, 2].axis("off")
+# img = content_image
+# x_deltas, y_deltas = high_pass_x_y(img)
+# axs[0, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+# axs[0, 0].set_title("Horizontal Deltas: Original")
+# axs[0, 0].axis("off")
+# axs[0, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+# axs[0, 1].set_title("Vertical Deltas: Original")
+# axs[0, 1].axis("off")
+# axs[0, 2].imshow(img[0])
+# axs[0, 2].set_title("Original image")
+# axs[0, 2].axis("off")
 
-img = old_image
-x_deltas, y_deltas = high_pass_x_y(img)
-axs[1, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
-axs[1, 0].set_title("Horizontal Deltas: Styled")
-axs[1, 0].axis("off")
-axs[1, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
-axs[1, 1].set_title("Vertical Deltas: Styled")
-axs[1, 1].axis("off")
-axs[1, 2].imshow(img[0])
-axs[1, 2].set_title("Styled image")
-axs[1, 2].axis("off")
+# img = old_image
+# x_deltas, y_deltas = high_pass_x_y(img)
+# axs[1, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+# axs[1, 0].set_title("Horizontal Deltas: Styled")
+# axs[1, 0].axis("off")
+# axs[1, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+# axs[1, 1].set_title("Vertical Deltas: Styled")
+# axs[1, 1].axis("off")
+# axs[1, 2].imshow(img[0])
+# axs[1, 2].set_title("Styled image")
+# axs[1, 2].axis("off")
 
-img = image
-x_deltas, y_deltas = high_pass_x_y(img)
-axs[2, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
-axs[2, 0].set_title("Horizontal Deltas: Optimized")
-axs[2, 0].axis("off")
-axs[2, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
-axs[2, 1].set_title("Vertical Deltas: Optimized")
-axs[2, 1].axis("off")
-axs[2, 2].imshow(img[0])
-axs[2, 2].set_title("Optimized image")
-axs[2, 2].axis("off")
+# img = image
+# x_deltas, y_deltas = high_pass_x_y(img)
+# axs[2, 0].imshow(clip_0_1(2*y_deltas+0.5)[0])
+# axs[2, 0].set_title("Horizontal Deltas: Optimized")
+# axs[2, 0].axis("off")
+# axs[2, 1].imshow(clip_0_1(2*x_deltas+0.5)[0])
+# axs[2, 1].set_title("Vertical Deltas: Optimized")
+# axs[2, 1].axis("off")
+# axs[2, 2].imshow(img[0])
+# axs[2, 2].set_title("Optimized image")
+# axs[2, 2].axis("off")
 
-plt.show()
+# plt.show()
 
 """This shows how the high frequency components increased with the stylization, but is lowered with the optimization of the loss using total variation.
 
 NOTE: This high frequency component is basically an edge-detector.
+
+#### Create mask of original content image
 """
 
 # Function to create the mask for the image
@@ -446,7 +450,7 @@ def create_mask(original_image_path, threshold=0.5):
 def apply_mask(original_img, content_img, mask):
     return original_img[0] * mask + content_img[0] * (1 - mask)
 
-mask = create_mask(content_path, 0.6)
+mask = create_mask(content_path, 0.55)
 
 # Display the original image and the created mask
 
@@ -475,22 +479,22 @@ plt.imshow(new_image, cmap='gray')
 plt.title('Masked Image')
 plt.axis('off')
 
-
 plt.show()
 
 """Finally, save the result:"""
 
-file_name = 'stylized-image.png'
+display.display(tensor_to_image(new_image))
+
+file_name = 'stylized-num-stylename.jpg'
+file_name2 = 'stylized-num-stylename-masked.jpg'
 tensor_to_image(image).save(file_name)
+tensor_to_image(new_image).save(file_name2)
 
 try:
-  from google.colab import files
+    from google.colab import files
 except ImportError:
-   pass
+    pass
 else:
-  files.download(file_name)
+    files.download(file_name)
+    files.download(file_name2)
 
-"""## Learn more
-
-This tutorial demonstrates the original style-transfer algorithm. For a simple application of style transfer check out this [tutorial](https://www.tensorflow.org/hub/tutorials/tf2_arbitrary_image_stylization) to learn more about how to use the arbitrary image style transfer model from [TensorFlow Hub](https://tfhub.dev).
-"""
