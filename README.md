@@ -8,6 +8,9 @@ This project is built on influential works in neural style transfer, drawing ins
 
 To learn more, read final_report.pdf, which is attached to the Github.
 
+https://github.com/AllenDufort/csci1290_final/assets/77863478/6567f597-abba-4fa3-a701-488c9ed8cdc5
+
+
 ## To clone code:
 `git clone https://github.com/AllenDufort/csci1290_final.git `
 
