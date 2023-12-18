@@ -46,4 +46,4 @@ To run the texture transfer:
 
     Only the filename is needed for images, not the full path (i.e. 'toast.png' not '~/<dir1>/<dir2>/toast.png')
 
-If no mask is given, entire image is rendered as painting. If you want to run main.py with a mask, and DON'T want to manually make your own mask, make and download a mask of the input image in `style_transfer_final.ipynb` using  `def create_mask`.
+If no mask is given, entire image is rendered as painting. If you want to run main.py with a mask, and DON'T want to manually make your own mask, make a mask of the input image in `style_transfer_final.ipynb` using `def create_mask`. Make sure that the mask and the source images are the same exact size!

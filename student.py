@@ -11,6 +11,7 @@ import cv2
 import math
 import random
 from skimage.color import rgb2gray
+from combine_images import combine_images
 
 # ------------------------TEXTURE FUNCTIONS------------------------
 
@@ -19,6 +20,8 @@ def image_texture(source, texture, outsize, tilesize, overlapsize, n_iter, quiet
     Outputs an image that looks like the source but is created from samples
     from the texture image
     '''
+
+    full_image = source
 
     adjsize = tilesize - overlapsize
     imout = np.zeros((math.ceil(outsize[0] / adjsize) * adjsize + overlapsize, math.ceil(outsize[1] / adjsize) * adjsize + overlapsize, source.shape[2]))
@@ -85,7 +88,9 @@ def image_texture(source, texture, outsize, tilesize, overlapsize, n_iter, quiet
 
     imout = imout[:outsize[0],:outsize[1]]
 
-    return imout
+    final_img = combine_images(mask, imout, full_image)
+
+    return final_img
 
 
 def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, texture, alpha, source):
@@ -321,7 +326,7 @@ def get_patch_to_insert_transfer(tilesize, overlapsize, to_fill, to_fill_mask, t
     
     elif (to_fill_mask[0, width_mask-1] == 1 and to_fill_mask[height_mask-1, 0] == 1):
         # Find both left and above cuts
-        
+
         to_fill_select = to_fill[0:overlapsize, :, :]
         patch_select = patch[0:overlapsize, :, :]
         
